@@ -1,0 +1,61 @@
+/*Hello all . This is my first real time data science project. This Project is to find the Linear Regression in the titanic survival data set which is available in kaggle. */
+#importing essential libraries
+import pandas as pd
+import numpy as np
+import matplotlib.pyplot as plt
+from sklearn.model_selection import train_test_split
+from sklearn.linear_model import LinearRegression
+from sklearn.metrics import mean_squared_error, r2_score
+
+# Load the dataset from the titanic survival data set csv file
+data = pd.read_csv("C:/Users/paruo/OneDrive/Documents/one drive documents/OneDrive/Desktop/python pprogram from vs code/titanicdataset.csv")
+
+# Handling the missing values
+data['Age'] = data['Age'].fillna(data['Age'].median())  
+data['Fare'] = data['Fare'].fillna(data['Fare'].median())
+data['Embarked'] = data['Embarked'].fillna(data['Embarked'].mode()[0])  
+
+# Convert categorical features to numeric 
+data = pd.get_dummies(data, columns=['Sex', 'Embarked'], drop_first=True)
+
+# Select relevant features and target
+X = data[['Fare', 'Pclass', 'SibSp', 'Parch', 'Sex_male', 'Embarked_Q', 'Embarked_S']]  # Features
+y = data['Age']  # Target variable
+
+# Split the dataset into training and testing sets
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
+
+# Train the Linear Regression model
+model = LinearRegression()
+model.fit(X_train, y_train)
+
+# Make predictions
+y_pred = model.predict(X_test)
+
+# Evaluate the model
+mse = mean_squared_error(y_test, y_pred)
+r2 = r2_score(y_test, y_pred)
+
+#printing the results of this evaluation
+print(f"Mean Squared Error: {mse}")
+print(f"R-squared: {r2}")
+
+# Visualize: Actual vs Predicted values
+plt.figure(figsize=(10, 5))
+
+# Subplot 1: Actual vs Predicted Age
+plt.subplot(1, 2, 1)
+plt.scatter(y_test, y_pred, color='blue', alpha=0.5)
+plt.plot([y_test.min(), y_test.max()], [y_test.min(), y_test.max()], color='red', linewidth=2)
+plt.xlabel('Actual Age')
+plt.ylabel('Predicted Age')
+plt.title('Actual vs Predicted Age')
+
+# Subplot 2: Fare vs Age
+plt.subplot(1, 2, 2)
+plt.scatter(data['Fare'], data['Age'], color='green', alpha=0.5)
+plt.xlabel('Fare')
+plt.ylabel('Age')
+plt.title('Fare vs Age')
+plt.tight_layout()
+plt.show()
